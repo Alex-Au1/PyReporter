@@ -37,13 +37,13 @@ class AbsSource():
 
 
     # import_data(): imports the data to become a Pandas Dataframe
-    def import_data(self) -> pd.DataFrame:
+    async def import_data(self) -> pd.DataFrame:
         pass
 
 
     # process(df): Prepares the data for use in the calculations
-    def prepare(self, post_processor_name: str = DEFAULT_POST_PROCESSOR_KEY):
-        df = self.import_data()
+    async def prepare(self, post_processor_name: str = DEFAULT_POST_PROCESSOR_KEY):
+        df = await self.import_data()
 
         if (self.post_processor is not None):
             return self.post_processor[post_processor_name].process(df)

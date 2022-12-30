@@ -4,13 +4,13 @@ from ..sharepoint import SharePoint
 from pathlib import Path
 import io
 from ..df_processor import DFProcessor
-from typing import Optional
+from typing import Optional, Union, Dict
 
 
 # ExcelSource: Imports a table from excel
 class ExcelSource(FileSource):
-    def __init__(self, path: str, sheet: Optional[str], from_sharepoint: bool = False,
-                 sharepoint: Optional[SharePoint] = None, post_processor: Optional[DFProcessor] = None):
+    def __init__(self, path: str, sheet: Optional[str] = None, from_sharepoint: bool = False,
+                 sharepoint: Optional[SharePoint] = None, post_processor: Optional[Union[Dict[str, DFProcessor], DFProcessor]] = None):
         super().__init__(path, post_processor)
         self._sheet = sheet
 
@@ -36,7 +36,7 @@ class ExcelSource(FileSource):
 
 
     # import_data(): Imports the table from excel
-    def import_data(self) -> pd.DataFrame:
+    async def import_data(self) -> pd.DataFrame:
         # open from local file path
         if (self._sharepoint is None):
             df = pd.read_excel(self._path, sheet_name = self._sheet, parse_dates = True)

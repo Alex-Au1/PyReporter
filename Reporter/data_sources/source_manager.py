@@ -1,8 +1,7 @@
-from .data_source_loc import DataSourceLoc
 from .abs_source import AbsSource, DEFAULT_POST_PROCESSOR_KEY
 from ..events.progress_event import *
 from ..events.out_event import OutEvent
-from .sql import NavSource
+from .sql import SQLSource
 from .sharepoint import SharepointSource
 from ..exceptions import BadSourceException
 from ..view.progress import ProgressSubject
@@ -12,7 +11,7 @@ from typing import Dict, Optional
 
 # SourceManager: Class to handle a source that could be imported from many different methods
 class SourceManager():
-    def __init__(self, name: str, import_method: Optional[str], src: Dict[DataSourceLoc, AbsSource], progress_checker: Optional[ProgressSubject] = None):
+    def __init__(self, name: str, import_method: Optional[str], src: Dict[str, AbsSource], progress_checker: Optional[ProgressSubject] = None):
         self.src = src
         self.name = name
         self.progress_checker = progress_checker
@@ -58,11 +57,7 @@ class SourceManager():
         # try importing the source
         try:
             source = self.src[import_method]
-
-            if (import_method == DataSourceLoc.Orbit.value):
-                result = await source.prepare(post_processor_name)
-            else:
-                result =  source.prepare(post_processor_name)
+            result = await source.prepare(post_processor_name)
 
         # when failed to import
         except Exception as exception:
@@ -80,7 +75,7 @@ class SourceManager():
 
             # notify the imported data
             export_file_name = None
-            if (isinstance(source, NavSource) or isinstance(source, SharepointSource)):
+            if (isinstance(source, SQLSource) or isinstance(source, SharepointSource)):
                 export_file_name = self.name.replace(" ", "_")
                 export_file_name = f"import_{export_file_name}"
 
