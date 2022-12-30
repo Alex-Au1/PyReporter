@@ -5,7 +5,7 @@ from shareplum import Site
 from ...tools import URLTools
 import re
 import pandas as pd
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 
 
 # SharepointLink(): Stores a url link data from Sharepoint
@@ -17,7 +17,7 @@ class SharepointLink():
 
 # SharePointSource: Source taken from a SharePoint List
 class SharepointSource(AbsSource):
-    def __init__(self, sharepoint: SharePoint, site: str, list: str, view: str, include_urls: bool = False, post_processor: Optional[DFProcessor] = None):
+    def __init__(self, sharepoint: SharePoint, site: str, list: str, view: str, include_urls: bool = False, post_processor: Optional[Union[Dict[str, DFProcessor], DFProcessor]] = None):
         super().__init__(post_processor)
         self.__sharepoint = sharepoint
         self.__site = site
@@ -57,7 +57,7 @@ class SharepointSource(AbsSource):
 
 
     # import_data(): Imports the sharepoint list
-    def import_data(self) -> pd.DataFrame:
+    async def import_data(self) -> pd.DataFrame:
         site = Site(self.__site, authcookie=self.__sharepoint.auth_cookie)
         data = site.List(self.__list).GetListItems(self.__view)
 
