@@ -210,3 +210,64 @@ loop.close()
   ```
 </details>
 
+
+#### Remove Duplicate Row Entries for Distinct Columns
+
+<details>
+  <summary> Available Files to Read </summary>
+  
+  ***input4.xlsx***
+  
+  <img width="455" alt="distinct_cols_input" src="https://user-images.githubusercontent.com/45087631/210185873-6f316024-9350-4e43-815d-1d1fee3a7820.png">
+</details>
+
+
+```python
+import pandas as pd
+import Reporter as rp
+import asyncio
+
+
+async def main():
+    data_sources = rp.DataSources()
+    data_sources["MyInput"] = rp.SourceManager("Distinct Columns", "no duplicate rows",
+                                               {"no duplicate rows": rp.ExcelSource("input5.xlsx",
+                                                                                post_processor = {"original": rp.DFProcessor(header_row_pos = 3, top = 4, bottom = 9, left = 2, right = 8),
+                                                                                                  "filtered": rp.DFProcessor(header_row_pos = 3, top = 4, bottom = 9, left = 2, right = 8,
+                                                                                                                             distinct_columns = ["distinct 1", "distinct 2", "distinct 3"])})})
+
+    # table without duplicate rows for the selected distinct columns
+    output = await data_sources["MyInput"].prepare("filtered")
+    print(f"--  Distinct Columns --\n{output}")
+
+    # the original table
+    output  = await data_sources["MyInput"].prepare("original")
+    print(f"\n-- Original Table --\n{output}")
+
+
+loop = asyncio.new_event_loop()
+loop.run_until_complete(main())
+loop.close()
+
+```
+
+
+<details>
+  <summary> Output Result </summary>
+  
+  ```
+  --  Distinct Columns --
+  3 id distinct 1 col 1 col 2 distinct 2 distinct 3
+  4  1          a   aba   cdc          b          c
+  6  3          d   tet   wew          e          f
+  7  4          g   ete   gdg          h          i
+
+  -- Original Table --
+  3 id distinct 1 col 1 col 2 distinct 2 distinct 3
+  4  1          a   aba   cdc          b          c
+  5  2          a   rer   rer          b          c
+  6  3          d   tet   wew          e          f
+  7  4          g   ete   gdg          h          i
+  8  5          d   tet   wew          e          f
+  ```
+</details>
