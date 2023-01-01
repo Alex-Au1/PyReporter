@@ -132,7 +132,7 @@ async def main():
                                                                                                           ind_renamed_columns = {1: "ind 1",
                                                                                                                                  3: "ind 2"}))})
 
-    # prints out only the numbers in the table
+    # renames the columns in the table
     output = await data_sources["MyInput"].prepare()
     print(output)
 
@@ -140,7 +140,6 @@ async def main():
 loop = asyncio.new_event_loop()
 loop.run_until_complete(main())
 loop.close()
-
 ```
 
 
@@ -153,3 +152,5 @@ loop.close()
   ```
 </details>
 
+
+#### 
