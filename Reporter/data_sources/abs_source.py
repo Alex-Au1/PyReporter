@@ -46,6 +46,19 @@ class AbsSource():
         df = await self.import_data()
 
         if (self.post_processor is not None):
-            return self.post_processor[post_processor_name].process(df)
+            result = None
+            
+            try:
+                result = self.post_processor[post_processor_name].process(df)
+            except KeyError as e:
+                if (isinstance(self.post_processor, dict)):
+                    key = list(self.post_processor.keys())[0]
+                    result = self.post_processor[key].process(df)
+
+                    return result
+                else:
+                    raise e
+            else:
+                return result
         else:
             return df

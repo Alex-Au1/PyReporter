@@ -5,8 +5,12 @@ from .sql import SQLSource
 from .sharepoint import SharepointSource
 from ..exceptions import BadSourceException
 from ..view.progress import ProgressSubject
+from ..view.observers import ProgTextObserver
 import pandas as pd
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
+
+
+DEFAULT_PROG_OBS = ProgTextObserver()
 
 
 # SourceManager: Class to handle a source that could be imported from many different methods
@@ -49,8 +53,19 @@ class SourceManager():
         self.import_method = first_key
 
 
-    # __prepare_source(import_method): Tries to import the source using 'import_method'
-    async def __prepare_source(self, import_method: str, post_processor_name: str = DEFAULT_POST_PROCESSOR_KEY) -> Optional[pd.DataFrame]:
+    # _except_notify(event, error_msg): Notifies when an error occurs
+    def _except_notify(self, event: OutEvent, error_msg: str) -> str:
+        if (self.progress_checker is not None):
+            self.progress_checker.notify(event)
+        else:
+            error_msg += DEFAULT_PROG_OBS.get_str(event)
+
+        return error_msg
+
+
+
+    # _prepare_source(import_method): Tries to import the source using 'import_method'
+    async def _prepare_source(self, import_method: str, post_processor_name: str = DEFAULT_POST_PROCESSOR_KEY, error_msg: str = "") -> List[Union[Optional[pd.DataFrame], str]]:
         self._notify_progress(PrintEvent(f"\n**********************************************************************"))
         self._notify_progress(PrintEvent(f"Testing importing \"{self.name}\" using the \"{import_method}\" import method...\n", end_with_new_line = False))
 
@@ -61,10 +76,10 @@ class SourceManager():
 
         # when failed to import
         except Exception as exception:
-            self._notify_progress(PrintEvent(f"\nResult of importing \"{self.name}\" using the \"{import_method}\" import method...\tFailed\n"))
-            self._notify_progress(PrintEvent(f"\n--------------------------\n", debug = True))
-            self._notify_progress(ErrEvent(exception, no_decorator = True, debug = True))
-            self._notify_progress(PrintEvent(f"\n--------------------------", debug = True))
+            error_msg = self._except_notify(PrintEvent(f"\nResult of importing \"{self.name}\" using the \"{import_method}\" import method...\tFailed\n"), error_msg)
+            error_msg = self._except_notify(PrintEvent(f"\n--------------------------\n", debug = True), error_msg)
+            error_msg = self._except_notify(ErrEvent(exception, no_decorator = True, debug = True), error_msg)
+            error_msg = self._except_notify(PrintEvent(f"\n--------------------------", debug = True), error_msg)
 
             result = None
 
@@ -82,25 +97,25 @@ class SourceManager():
             self._notify_progress(ImportEvent(self.name, type(source), result, export_file_name = export_file_name))
 
         self._notify_progress(PrintEvent(f"\n**********************************************************************"))
-        return result
+        return [result, error_msg]
 
 
 
     # prepare(): Prepares the chosen source to be imported to the report
     async def prepare(self, post_processor_name: str = DEFAULT_POST_PROCESSOR_KEY) -> pd.DataFrame:
-        result = await self.__prepare_source(self.import_method, post_processor_name)
+        result, error_msg = await self._prepare_source(self.import_method, post_processor_name)
 
         # try all the possible source importing options
         if (result is None):
             for import_method in self.src:
                 if (import_method != self.import_method):
-                    result = await self.__prepare_source(import_method, post_processor_name)
+                    result, error_msg = await self._prepare_source(import_method, post_processor_name, error_msg = error_msg)
 
                     if (result is not None):
                         break
 
         # if we fail to load any of the source options, raise an error
         if (result is None):
-            raise BadSourceException(self.name)
+            raise BadSourceException(self.name, error_msg)
 
         return result
