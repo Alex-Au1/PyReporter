@@ -153,4 +153,60 @@ loop.close()
 </details>
 
 
-#### 
+#### Select a subset of Columns
+
+<details>
+  <summary> Available Files to Read </summary>
+  
+  ***input4.xlsx***
+  
+  <img width="539" alt="select_cols_input" src="https://user-images.githubusercontent.com/45087631/210184631-4031bf11-0665-4a79-8c54-f5bbefbf3a21.png">
+</details>
+
+```python
+import pandas as pd
+import Reporter as rp
+import asyncio
+
+
+async def main():
+    data_sources = rp.DataSources()
+    data_sources["MyInput"] = rp.SourceManager("Renamed Columns", "Rename",
+                                               {"Rename": rp.ExcelSource("input4.xlsx",
+                                                                          post_processor = {"original": rp.DFProcessor(header_row_pos = 1, top = 2, bottom = 5, left = 1, right = 7),
+                                                                                            "filtered": rp.DFProcessor(header_row_pos = 1, top = 2, bottom = 5, left = 1, right = 7,
+                                                                                                                       ind_selected_columns = [0, 2], selected_columns = ["select 3", "repeat"])})})
+                                                                                                                       
+    # select the correct columns
+    output = await data_sources["MyInput"].prepare("filtered")
+    print(f"-- Selected Columns --\n{output}")
+
+    # the original table
+    output  = await data_sources["MyInput"].prepare("original")
+    print(f"\n-- Original Table --\n{output}")
+
+
+loop = asyncio.new_event_loop()
+loop.run_until_complete(main())
+loop.close()
+
+```
+
+<details>
+  <summary> Output Result </summary>
+  
+  ```
+-- Selected Columns --
+1             select 1             select 2             select 3
+2                    1                    3                    5
+3                    a                    c                    e
+4  2019-01-20 00:00:00  2019-01-22 00:00:00  2019-01-24 00:00:00
+
+-- Original Table --
+1             select 1       don't select 1             select 2       don't select 2             select 3       don't select 3
+2                    1                    2                    3                    4                    5                    6
+3                    a                    b                    c                    d                    e                    f
+4  2019-01-20 00:00:00  2019-01-21 00:00:00  2019-01-22 00:00:00  2019-01-23 00:00:00  2019-01-24 00:00:00  2019-01-25 00:00:00
+  ```
+</details>
+
