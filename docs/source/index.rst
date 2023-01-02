@@ -6,8 +6,7 @@
 Welcome to PyReporter's documentation!
 ======================================
 
-$project will solve your problem of where to start with documentation,
-by providing a basic explanation of how to do it easily.
+A Python reporting API that helps with reading and writing tabular data to/from different formats like Excel, SQL tables, etc...
 
 Look how easy it is to use:
 
