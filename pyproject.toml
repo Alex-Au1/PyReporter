@@ -1,18 +1,9 @@
 [build-system]
-requires = ["holidays",
-            "numpy",
-            "office365",
-            "Office365_REST_Python_Client",
-            "openpyxl",
-            "pandas",
-            "pyodbc",
-            "requests",
-            "selenium",
-            "setuptools",
-            "SharePlum"]
+requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "Pyreporter"
-authors = [{name = "Alex Au", email = "AlexXianZhenYuAu@gmail.com"}]
+name = "lumache"
+authors = [{name = "Graziella", email = "graziella@lumache"}]
 dynamic = ["version", "description"]
+
