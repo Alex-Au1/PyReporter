@@ -6,8 +6,8 @@ project = 'PyReporter'
 copyright = '2023, Alex Au'
 author = 'Alex Au'
 
-release = '1.0.5
-version = '1.0.5
+release = '1.0.5'
+version = '1.0.5'
 
 # -- General configuration
 
