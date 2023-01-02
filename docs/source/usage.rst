@@ -6,11 +6,11 @@ Usage
 Installation
 ------------
 
-To use Lumache, first install it using pip:
+To use PyReporter, first install it using pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install lumache
+   pip install -U PyReporter
 
 Creating recipes
 ----------------
