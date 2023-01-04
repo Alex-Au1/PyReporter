@@ -115,7 +115,14 @@ class ExcelStyles():
 
 # ExcelTableStyles: Different excel table formatting styles
 class ExcelTableStyles(enum.Enum):
-    Dark_Blue = "TableStyleMedium2"
+    MediumBlack1 = "TableStyleMedium1"
+    MediumBlack2 = "TableStyleMedium8"
+    MediumBlack3 = "TableStyleMedium15"
+    MediumBlack4 = "TableStyleMedium22"
+    MediumBlue1 = "TableStyleMedium2"
+    MediumBlue2 = "TableStyleMedium9"
+    MediumBlue3 = "TableStyleMedium16"
+    MediumBlue4 = "TableStyleMedium23"
 
 
 # Excel: Class to handle reading/writing of excel files
@@ -383,7 +390,7 @@ class Excel():
         table = Table(displayName = table_name, ref = self.get_range(left_top, right_bottom))
 
         # basic style for the table
-        style = TableStyleInfo(name=ExcelTableStyles.Dark_Blue.value, showFirstColumn=False,
+        style = TableStyleInfo(name=ExcelTableStyles.MediumBlue1.value, showFirstColumn=False,
                                showLastColumn=False, showRowStripes=True, showColumnStripes=False)
         table.tableStyleInfo = style
         sheet.add_table(table)
