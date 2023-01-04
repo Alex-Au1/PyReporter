@@ -6,7 +6,7 @@ from ...events import ExcelExportEvent
 from .excel_export_observer import ExcelExportObserver
 from ...events.progress_event import *
 import traceback
-from typing import Any
+from typing import Any, Optional
 
 
 # output of the progress for running the report
@@ -79,7 +79,10 @@ class ProgTextObserver(Observer):
 
     # get_import_msg(out_event): Retreives the string result of
     #   an imported table
-    def get_import_msg(self, out_event: ImportEvent) -> str:
+    def get_import_msg(self, out_event: ImportEvent, is_export: Optional[bool] = None) -> str:
+        if (is_export is None):
+            is_export = bool(self._export and out_event.export_file_name is not None)
+
         message = f"\n@@@@@@@@@@@@@@@ Imported Data @@@@@@@@@@@@@@@@@@@@@@"
         message += f"\n\nSource Name: {out_event.name}"
         message += f"\nSource Type: {out_event.source_type.__name__}"
@@ -101,7 +104,7 @@ class ProgTextObserver(Observer):
             path = self._export_data(out_event.export_file_name, out_event.source_table)
 
         if (self._verbose):
-            message = self.get_import_msg(out_event)
+            message = self.get_import_msg(out_event, is_export = is_export)
             self._update(message)
 
 
